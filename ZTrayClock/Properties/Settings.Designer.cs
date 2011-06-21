@@ -49,13 +49,13 @@ namespace ZTrayClock.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool LeadingZeroes {
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool LeadingZeroesHours {
             get {
-                return ((bool)(this["LeadingZeroes"]));
+                return ((bool)(this["LeadingZeroesHours"]));
             }
             set {
-                this["LeadingZeroes"] = value;
+                this["LeadingZeroesHours"] = value;
             }
         }
         
@@ -85,13 +85,13 @@ namespace ZTrayClock.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string Setting {
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool LeadingZeroesMinutes {
             get {
-                return ((string)(this["Setting"]));
+                return ((bool)(this["LeadingZeroesMinutes"]));
             }
             set {
-                this["Setting"] = value;
+                this["LeadingZeroesMinutes"] = value;
             }
         }
     }

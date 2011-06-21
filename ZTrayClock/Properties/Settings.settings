@@ -8,8 +8,8 @@
     <Setting Name="FontStyle" Type="System.Drawing.FontStyle" Scope="User">
       <Value Profile="(Default)">Regular</Value>
     </Setting>
-    <Setting Name="LeadingZeroes" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+    <Setting Name="LeadingZeroesHours" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="DisplayAMPM" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
@@ -17,8 +17,8 @@
     <Setting Name="TimeFormat" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
-    <Setting Name="Setting" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+    <Setting Name="LeadingZeroesMinutes" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>

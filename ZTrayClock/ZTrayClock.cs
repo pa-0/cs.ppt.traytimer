@@ -41,9 +41,13 @@ namespace ZTrayClock
             ToolStripMenuItem mitemChangeFont = new ToolStripMenuItem("Change &font");
             mitemChangeFont.Click += new EventHandler(mitemChangeFont_Click);
 
-            ToolStripMenuItem mitemLeadingZeroes = new ToolStripMenuItem("Display leading &zeroes");
-            mitemLeadingZeroes.Checked = Properties.Settings.Default.LeadingZeroes;
-            mitemLeadingZeroes.Click += new EventHandler(mitemLeadingZeroes_Click);
+            ToolStripMenuItem mitemLeadingZeroesHours = new ToolStripMenuItem("Display leading zeroes on &hours");
+            mitemLeadingZeroesHours.Checked = Properties.Settings.Default.LeadingZeroesHours;
+            mitemLeadingZeroesHours.Click += new EventHandler(mitemLeadingZeroesHours_Click);
+
+            ToolStripMenuItem mitemLeadingZeroesMinutes = new ToolStripMenuItem("Display leading zeroes on &minutes");
+            mitemLeadingZeroesMinutes.Checked = Properties.Settings.Default.LeadingZeroesMinutes;
+            mitemLeadingZeroesMinutes.Click += new EventHandler(mitemLeadingZeroesMinutes_Click);
 
             mitem12HourFormat = new ToolStripMenuItem("12-hour format");
             mitem24HourFormat = new ToolStripMenuItem("24-hour format");
@@ -65,7 +69,7 @@ namespace ZTrayClock
             contextMenuStrip = new ContextMenuStrip();
             contextMenuStrip.Items.AddRange(new ToolStripItem[] { 
                 mitemAdjTimeDate, mitemChangeFont, new ToolStripSeparator(),
-                mitemLeadingZeroes, mitem12HourFormat, mitem24HourFormat, mitemDisplayAMPM, new ToolStripSeparator(),
+                mitemLeadingZeroesHours, mitemLeadingZeroesMinutes, mitem12HourFormat, mitem24HourFormat, mitemDisplayAMPM, new ToolStripSeparator(),
                 mitemExit
             });
             iconHour.ContextMenuStrip = iconMinute.ContextMenuStrip = contextMenuStrip;
@@ -97,10 +101,18 @@ namespace ZTrayClock
             timer_Tick(sender, e);
         }
 
-        void mitemLeadingZeroes_Click(object sender, EventArgs e) {
+        void mitemLeadingZeroesHours_Click(object sender, EventArgs e) {
             var mitem = sender as ToolStripMenuItem;
             mitem.Checked = !mitem.Checked;
-            Properties.Settings.Default.LeadingZeroes = mitem.Checked;
+            Properties.Settings.Default.LeadingZeroesHours = mitem.Checked;
+            Properties.Settings.Default.Save();
+            timer_Tick(sender, e);
+        }
+
+        void mitemLeadingZeroesMinutes_Click(object sender, EventArgs e) {
+            var mitem = sender as ToolStripMenuItem;
+            mitem.Checked = !mitem.Checked;
+            Properties.Settings.Default.LeadingZeroesMinutes = mitem.Checked;
             Properties.Settings.Default.Save();
             timer_Tick(sender, e);
         }
@@ -170,13 +182,13 @@ namespace ZTrayClock
             string hour;
             switch ((TimeFormat)Properties.Settings.Default.TimeFormat) {
                 case TimeFormat.TwelveHour:
-                    hour = DateTime.Now.ToString((Properties.Settings.Default.LeadingZeroes ? "hh" : "%h"));
+                    hour = DateTime.Now.ToString((Properties.Settings.Default.LeadingZeroesHours ? "hh" : "%h"));
                     break;
                 case TimeFormat.TwentyFourHour:
-                    hour = DateTime.Now.ToString((Properties.Settings.Default.LeadingZeroes ? "HH" : "%H"));
+                    hour = DateTime.Now.ToString((Properties.Settings.Default.LeadingZeroesHours ? "HH" : "%H"));
                     break;
                 default: // so that the compiler won't complain about uninitialized variable usage (default to 12-hour)
-                    hour = DateTime.Now.ToString((Properties.Settings.Default.LeadingZeroes ? "hh" : "%h"));
+                    hour = DateTime.Now.ToString((Properties.Settings.Default.LeadingZeroesHours ? "hh" : "%h"));
                     break;
             }
 
@@ -194,7 +206,7 @@ namespace ZTrayClock
         }
 
         public Icon DrawMinute() {
-            string minute = DateTime.Now.ToString((Properties.Settings.Default.LeadingZeroes ? "mm" : "%m"));
+            string minute = DateTime.Now.ToString((Properties.Settings.Default.LeadingZeroesMinutes ? "mm" : "%m"));
 
             Bitmap b = new Bitmap(iconSize, iconSize, PixelFormat.Format32bppArgb);
             Graphics gb = Graphics.FromImage(b);
