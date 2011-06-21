@@ -12,7 +12,7 @@ laptop, which has a narrower screen than my desktop.
 
 ### Comparison
 
-ZTrayClock looks [like this](http://imgur.com/EOGuc).  
-The Windows clock looks [like this](http://imgur.com/QHTaL).
+ZTrayClock looks [like this](http://i.imgur.com/EOGuc.jpg).  
+The Windows clock looks [like this](http://i.imgur.com/QHTaL.jpg).
 
 The difference isn't that drastic, but on a 1366x768 screen (such as my laptop's), every little bit helps.
