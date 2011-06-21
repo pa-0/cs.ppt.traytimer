@@ -38,12 +38,18 @@ namespace ZTrayClock
             ToolStripMenuItem mitemAdjTimeDate = new ToolStripMenuItem("&Adjust time/date");
             mitemAdjTimeDate.Font = new Font(mitemAdjTimeDate.Font, FontStyle.Bold);
             mitemAdjTimeDate.Click += new EventHandler(mitemAdjTimeDate_Click);
+
+            ToolStripMenuItem mitemChangeFont = new ToolStripMenuItem("Change &font");
+            mitemChangeFont.Click += new EventHandler(mitemChangeFont_Click);
+
             ToolStripSeparator mitemSeparator = new ToolStripSeparator();
+            
             ToolStripMenuItem mitemExit = new ToolStripMenuItem("E&xit");
             mitemExit.Click += new EventHandler(mitemExit_Click);
+            
             // set up the context menu
             contextMenuStrip = new ContextMenuStrip();
-            contextMenuStrip.Items.AddRange(new ToolStripItem[] { mitemAdjTimeDate, mitemSeparator, mitemExit });
+            contextMenuStrip.Items.AddRange(new ToolStripItem[] { mitemAdjTimeDate, mitemChangeFont, mitemSeparator, mitemExit });
             iconHour.ContextMenuStrip = iconMinute.ContextMenuStrip = contextMenuStrip;
 
             timer.Interval = 10;
@@ -51,6 +57,19 @@ namespace ZTrayClock
             timer.Enabled = true;
 
             this.ThreadExit += new EventHandler(ZTrayClock_ThreadExit);
+        }
+
+        void mitemChangeFont_Click(object sender, EventArgs e) {
+            FontDialog fd = new FontDialog();
+            fd.FontMustExist = true;
+            fd.ShowEffects = false;
+
+            DialogResult result = fd.ShowDialog();
+            if (result == DialogResult.OK) {
+                freg = new Font(fd.Font.FontFamily, fd.Font.Size, fd.Font.Style);
+                fbold = new Font(fd.Font.FontFamily, fd.Font.Size, fd.Font.Style);
+                timer_Tick(sender, e);
+            }
         }
 
         void timer_Tick(object sender, EventArgs e) {
@@ -72,6 +91,7 @@ namespace ZTrayClock
         void ZTrayClock_ThreadExit(object sender, EventArgs e) {
             // disable timer just for cleanliness' sake
             timer.Enabled = false;
+
             // prevents stale icons from hanging around
             iconHour.Visible = false;
             iconMinute.Visible = false;
