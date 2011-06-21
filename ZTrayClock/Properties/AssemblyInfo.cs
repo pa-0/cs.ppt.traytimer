@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("ZTrayClock")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A replacement for the default Windows taskbar clock.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("zztzed")]
 [assembly: AssemblyProduct("ZTrayClock")]

@@ -65,7 +65,7 @@ namespace ZTrayClock
             contextMenuStrip = new ContextMenuStrip();
             contextMenuStrip.Items.AddRange(new ToolStripItem[] { 
                 mitemAdjTimeDate, mitemChangeFont, new ToolStripSeparator(),
-                mitem12HourFormat, mitem24HourFormat, mitemDisplayAMPM, new ToolStripSeparator(),
+                mitemLeadingZeroes, mitem12HourFormat, mitem24HourFormat, mitemDisplayAMPM, new ToolStripSeparator(),
                 mitemExit
             });
             iconHour.ContextMenuStrip = iconMinute.ContextMenuStrip = contextMenuStrip;
@@ -170,11 +170,9 @@ namespace ZTrayClock
             string hour;
             switch ((TimeFormat)Properties.Settings.Default.TimeFormat) {
                 case TimeFormat.TwelveHour:
-                    //hour = String.Format((Properties.Settings.Default.LeadingZeroes ? "{0:hh}" : "{0:h}"), DateTime.Now);
                     hour = DateTime.Now.ToString((Properties.Settings.Default.LeadingZeroes ? "hh" : "%h"));
                     break;
                 case TimeFormat.TwentyFourHour:
-                    //hour = String.Format((Properties.Settings.Default.LeadingZeroes ? "{0:HH}" : "{0:H}"), DateTime.Now);
                     hour = DateTime.Now.ToString((Properties.Settings.Default.LeadingZeroes ? "HH" : "%H"));
                     break;
                 default: // so that the compiler won't complain about uninitialized variable usage (default to 12-hour)
@@ -196,13 +194,13 @@ namespace ZTrayClock
         }
 
         public Icon DrawMinute() {
-            string minute = String.Format((Properties.Settings.Default.LeadingZeroes ? "{0:mm}" : "{0:m}"), DateTime.Now);
+            string minute = DateTime.Now.ToString((Properties.Settings.Default.LeadingZeroes ? "mm" : "%m"));
 
             Bitmap b = new Bitmap(iconSize, iconSize, PixelFormat.Format32bppArgb);
             Graphics gb = Graphics.FromImage(b);
 
             gb.Clear(Color.Transparent);
-            gb.SmoothingMode = SmoothingMode.AntiAlias;
+            gb.SmoothingMode = SmoothingMode.HighQuality;
 
             gb.DrawString(minute, font, new SolidBrush(Color.Black), -1, -2);
             gb.DrawString(minute, font, new SolidBrush(Color.White), -2, -3);
