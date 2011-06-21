@@ -7,28 +7,27 @@ using System.Windows.Forms;
 
 namespace ZTrayClock
 {
+    public enum TimeFormat { TwelveHour, TwentyFourHour };
     public class ZTrayClock : ApplicationContext
     {
         private NotifyIcon iconHour;
         private NotifyIcon iconMinute;
         private ContextMenuStrip contextMenuStrip;
+        private ToolStripMenuItem mitem12HourFormat, mitem24HourFormat, mitemDisplayAMPM;
         private Timer timer;
 
         static int iconSize = 16;
-        static float fontSize = 14F;
-        static FontFamily ff = new FontFamily("Calibri");
-        Font fbold = new Font(ff, fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
-        Font freg  = new Font(ff, fontSize, FontStyle.Regular, GraphicsUnit.Pixel);
+        Font font = new Font(Properties.Settings.Default.Font.FontFamily, Properties.Settings.Default.Font.Size, Properties.Settings.Default.FontStyle, GraphicsUnit.Pixel);
 
         public ZTrayClock() {
             iconHour = new NotifyIcon();
             iconMinute = new NotifyIcon();
             timer = new Timer();
 
-            iconHour.Icon = DrawHour();
+            iconHour.Icon   = DrawHour();
             iconMinute.Icon = DrawMinute();
             iconHour.Text = iconMinute.Text = DateTime.Now.ToLongDateString();
-            iconHour.Visible = true;
+            iconHour.Visible   = true;
             iconMinute.Visible = true;
 
             iconHour.DoubleClick   += new EventHandler(iconHour_DoubleClick);
@@ -42,14 +41,33 @@ namespace ZTrayClock
             ToolStripMenuItem mitemChangeFont = new ToolStripMenuItem("Change &font");
             mitemChangeFont.Click += new EventHandler(mitemChangeFont_Click);
 
-            ToolStripSeparator mitemSeparator = new ToolStripSeparator();
-            
+            ToolStripMenuItem mitemLeadingZeroes = new ToolStripMenuItem("Display leading &zeroes");
+            mitemLeadingZeroes.Checked = Properties.Settings.Default.LeadingZeroes;
+            mitemLeadingZeroes.Click += new EventHandler(mitemLeadingZeroes_Click);
+
+            mitem12HourFormat = new ToolStripMenuItem("12-hour format");
+            mitem24HourFormat = new ToolStripMenuItem("24-hour format");
+            switch ((TimeFormat)Properties.Settings.Default.TimeFormat) {
+                case TimeFormat.TwelveHour: mitem12HourFormat.Checked = true; break;
+                case TimeFormat.TwentyFourHour: mitem24HourFormat.Checked = true; break;
+            }
+            mitem12HourFormat.Click += new EventHandler(mitem12HourFormat_Click);
+            mitem24HourFormat.Click += new EventHandler(mitem24HourFormat_Click);
+
+            mitemDisplayAMPM = new ToolStripMenuItem("Display AM/PM");
+            mitemDisplayAMPM.Checked = Properties.Settings.Default.DisplayAMPM;
+            mitemDisplayAMPM.Click += new EventHandler(mitemDisplayAMPM_Click);
+
             ToolStripMenuItem mitemExit = new ToolStripMenuItem("E&xit");
             mitemExit.Click += new EventHandler(mitemExit_Click);
             
             // set up the context menu
             contextMenuStrip = new ContextMenuStrip();
-            contextMenuStrip.Items.AddRange(new ToolStripItem[] { mitemAdjTimeDate, mitemChangeFont, mitemSeparator, mitemExit });
+            contextMenuStrip.Items.AddRange(new ToolStripItem[] { 
+                mitemAdjTimeDate, mitemChangeFont, new ToolStripSeparator(),
+                mitem12HourFormat, mitem24HourFormat, mitemDisplayAMPM, new ToolStripSeparator(),
+                mitemExit
+            });
             iconHour.ContextMenuStrip = iconMinute.ContextMenuStrip = contextMenuStrip;
 
             timer.Interval = 10;
@@ -59,15 +77,51 @@ namespace ZTrayClock
             this.ThreadExit += new EventHandler(ZTrayClock_ThreadExit);
         }
 
+        void mitem24HourFormat_Click(object sender, EventArgs e) {
+            if (mitem12HourFormat.Checked && !mitem24HourFormat.Checked) {
+                mitem12HourFormat.Checked = false; mitem24HourFormat.Checked = true;
+                Properties.Settings.Default.TimeFormat = (int)(TimeFormat.TwentyFourHour);
+            }
+            Properties.Settings.Default.DisplayAMPM = mitemDisplayAMPM.Checked = false;
+            Properties.Settings.Default.Save();
+            timer_Tick(sender, e);
+        }
+
+        void mitem12HourFormat_Click(object sender, EventArgs e) {
+            if (mitem24HourFormat.Checked && !mitem12HourFormat.Checked) {
+                mitem24HourFormat.Checked = false; mitem12HourFormat.Checked = true;
+                Properties.Settings.Default.TimeFormat = (int)(TimeFormat.TwelveHour);
+            }
+            Properties.Settings.Default.DisplayAMPM = mitemDisplayAMPM.Checked = true;
+            Properties.Settings.Default.Save();
+            timer_Tick(sender, e);
+        }
+
+        void mitemLeadingZeroes_Click(object sender, EventArgs e) {
+            var mitem = sender as ToolStripMenuItem;
+            mitem.Checked = !mitem.Checked;
+            Properties.Settings.Default.LeadingZeroes = mitem.Checked;
+            Properties.Settings.Default.Save();
+            timer_Tick(sender, e);
+        }
+
+        void mitemDisplayAMPM_Click(object sender, EventArgs e) {
+            var mitem = sender as ToolStripMenuItem;
+            mitem.Checked = !mitem.Checked;
+            Properties.Settings.Default.DisplayAMPM = mitem.Checked;
+            Properties.Settings.Default.Save();
+            timer_Tick(sender, e);
+        }
+
         void mitemChangeFont_Click(object sender, EventArgs e) {
             FontDialog fd = new FontDialog();
             fd.FontMustExist = true;
             fd.ShowEffects = false;
+            fd.Font = font; // default to the currently chosen font
 
             DialogResult result = fd.ShowDialog();
             if (result == DialogResult.OK) {
-                freg = new Font(fd.Font.FontFamily, fd.Font.Size, fd.Font.Style);
-                fbold = new Font(fd.Font.FontFamily, fd.Font.Size, fd.Font.Style);
+                font = new Font(fd.Font.FontFamily, fd.Font.Size, fd.Font.Style);
                 timer_Tick(sender, e);
             }
         }
@@ -89,6 +143,9 @@ namespace ZTrayClock
         }
 
         void ZTrayClock_ThreadExit(object sender, EventArgs e) {
+            // save settings
+            Properties.Settings.Default.Save();
+
             // disable timer just for cleanliness' sake
             timer.Enabled = false;
 
@@ -110,7 +167,20 @@ namespace ZTrayClock
         }
 
         public Icon DrawHour() {
-            string hour = String.Format("{0:hh}", DateTime.Now);
+            string hour;
+            switch ((TimeFormat)Properties.Settings.Default.TimeFormat) {
+                case TimeFormat.TwelveHour:
+                    //hour = String.Format((Properties.Settings.Default.LeadingZeroes ? "{0:hh}" : "{0:h}"), DateTime.Now);
+                    hour = DateTime.Now.ToString((Properties.Settings.Default.LeadingZeroes ? "hh" : "%h"));
+                    break;
+                case TimeFormat.TwentyFourHour:
+                    //hour = String.Format((Properties.Settings.Default.LeadingZeroes ? "{0:HH}" : "{0:H}"), DateTime.Now);
+                    hour = DateTime.Now.ToString((Properties.Settings.Default.LeadingZeroes ? "HH" : "%H"));
+                    break;
+                default: // so that the compiler won't complain about uninitialized variable usage (default to 12-hour)
+                    hour = DateTime.Now.ToString((Properties.Settings.Default.LeadingZeroes ? "hh" : "%h"));
+                    break;
+            }
 
             Bitmap b = new Bitmap(iconSize, iconSize, PixelFormat.Format32bppArgb);
             Graphics gb = Graphics.FromImage(b);
@@ -118,18 +188,15 @@ namespace ZTrayClock
             gb.Clear(Color.Transparent);
             gb.SmoothingMode = SmoothingMode.AntiAlias;
 
-            SizeF hourboldsize = gb.MeasureString(hour, fbold);
-            SizeF hourregsize  = gb.MeasureString(hour, freg);
-            gb.DrawString(hour, freg, new SolidBrush(Color.Black), (iconSize-hourregsize.Width)+2, -3);
-            gb.DrawString(hour, fbold, new SolidBrush(Color.White), (iconSize-hourboldsize.Width)+1, -4);
+            SizeF hourregsize  = gb.MeasureString(hour, font);
+            gb.DrawString(hour, font, new SolidBrush(Color.Black), (iconSize-hourregsize.Width)+2, -2);
+            gb.DrawString(hour, font, new SolidBrush(Color.White), (iconSize-hourregsize.Width)+1, -3);
 
             return Icon.FromHandle(b.GetHicon());
         }
 
         public Icon DrawMinute() {
-            string minute = String.Format("{0:mm}", DateTime.Now);
-            string ampm = String.Format("{0:tt}", DateTime.Now);
-            Font ampmFont = new Font(ff, 6, FontStyle.Bold, GraphicsUnit.Pixel);
+            string minute = String.Format((Properties.Settings.Default.LeadingZeroes ? "{0:mm}" : "{0:m}"), DateTime.Now);
 
             Bitmap b = new Bitmap(iconSize, iconSize, PixelFormat.Format32bppArgb);
             Graphics gb = Graphics.FromImage(b);
@@ -137,13 +204,15 @@ namespace ZTrayClock
             gb.Clear(Color.Transparent);
             gb.SmoothingMode = SmoothingMode.AntiAlias;
 
-            SizeF minuteboldsize = gb.MeasureString(minute, fbold);
-            SizeF minuteregsize  = gb.MeasureString(minute, freg);
-            gb.DrawString(minute, freg, new SolidBrush(Color.Black), -1, -3);
-            gb.DrawString(minute, fbold, new SolidBrush(Color.White), -2, -4);
+            gb.DrawString(minute, font, new SolidBrush(Color.Black), -1, -2);
+            gb.DrawString(minute, font, new SolidBrush(Color.White), -2, -3);
 
-            SizeF ampmsize = gb.MeasureString(ampm,ampmFont);
-            gb.DrawString(String.Format("{0:tt}", DateTime.Now), ampmFont, new SolidBrush(Color.White), (iconSize - ampmsize.Width), (iconSize - ampmsize.Height));
+            if (Properties.Settings.Default.DisplayAMPM) {
+                string ampm = String.Format("{0:tt}", DateTime.Now);
+                Font ampmFont = new Font(font.FontFamily, 6, font.Style, GraphicsUnit.Pixel);
+                SizeF ampmsize = gb.MeasureString(ampm, ampmFont);
+                gb.DrawString(String.Format("{0:tt}", DateTime.Now), ampmFont, new SolidBrush(Color.White), (iconSize - ampmsize.Width), (iconSize - ampmsize.Height));
+            }
             
             return Icon.FromHandle(b.GetHicon());
         }
