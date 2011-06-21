@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Windows.Forms;
 using System.Drawing.Imaging;
-using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace ZTrayClock
 {
@@ -27,6 +27,7 @@ namespace ZTrayClock
 
             iconHour.Icon = DrawHour();
             iconMinute.Icon = DrawMinute();
+            iconHour.Text = iconMinute.Text = DateTime.Now.ToLongDateString();
             iconHour.Visible = true;
             iconMinute.Visible = true;
 
@@ -45,7 +46,19 @@ namespace ZTrayClock
             contextMenuStrip.Items.AddRange(new ToolStripItem[] { mitemAdjTimeDate, mitemSeparator, mitemExit });
             iconHour.ContextMenuStrip = iconMinute.ContextMenuStrip = contextMenuStrip;
 
+            timer.Interval = 10;
+            timer.Tick += new EventHandler(timer_Tick);
+            timer.Enabled = true;
+
             this.ThreadExit += new EventHandler(ZTrayClock_ThreadExit);
+        }
+
+        void timer_Tick(object sender, EventArgs e) {
+            int seconds = DateTime.Now.Second;
+            timer.Interval = (60 - seconds) * 1000;
+            iconHour.Icon = DrawHour();
+            iconMinute.Icon = DrawMinute();
+            iconHour.Text = iconMinute.Text = DateTime.Now.ToLongDateString();
         }
 
         void mitemExit_Click(object sender, EventArgs e) {
@@ -57,6 +70,8 @@ namespace ZTrayClock
         }
 
         void ZTrayClock_ThreadExit(object sender, EventArgs e) {
+            // disable timer just for cleanliness' sake
+            timer.Enabled = false;
             // prevents stale icons from hanging around
             iconHour.Visible = false;
             iconMinute.Visible = false;
