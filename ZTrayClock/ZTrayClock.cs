@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace ZTrayClock
 {
@@ -78,7 +79,12 @@ namespace ZTrayClock
             timer.Tick += new EventHandler(timer_Tick);
             timer.Enabled = true;
 
+            SystemEvents.TimeChanged += new EventHandler(SystemEvents_TimeChanged);
             this.ThreadExit += new EventHandler(ZTrayClock_ThreadExit);
+        }
+
+        void SystemEvents_TimeChanged(object sender, EventArgs e) {
+            timer_Tick(sender, e);
         }
 
         void mitem24HourFormat_Click(object sender, EventArgs e) {
@@ -223,7 +229,7 @@ namespace ZTrayClock
                 SizeF ampmsize = gb.MeasureString(ampm, ampmFont);
                 gb.DrawString(String.Format("{0:tt}", DateTime.Now), ampmFont, new SolidBrush(Color.White), (iconSize - ampmsize.Width), (iconSize - ampmsize.Height));
             }
-            
+
             return Icon.FromHandle(b.GetHicon());
         }
     }
