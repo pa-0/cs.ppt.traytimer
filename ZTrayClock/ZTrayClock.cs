@@ -17,8 +17,10 @@ namespace ZTrayClock
         private ToolStripMenuItem mitem12HourFormat, mitem24HourFormat, mitemDisplayAMPM;
         private Timer timer;
 
-        static int iconSize = 16;
-        Font font = new Font(Properties.Settings.Default.Font.FontFamily, Properties.Settings.Default.Font.Size, Properties.Settings.Default.FontStyle, GraphicsUnit.Pixel);
+        private static int iconSize = 16;
+        private Font font = new Font(Properties.Settings.Default.Font.FontFamily, Properties.Settings.Default.Font.Size, Properties.Settings.Default.FontStyle, GraphicsUnit.Pixel);
+
+        private RegistryKey hkcu = Registry.CurrentUser;
 
         public ZTrayClock() {
             iconHour = new NotifyIcon();
@@ -39,7 +41,7 @@ namespace ZTrayClock
             mitemAdjTimeDate.Font = new Font(mitemAdjTimeDate.Font, FontStyle.Bold);
             mitemAdjTimeDate.Click += new EventHandler(mitemAdjTimeDate_Click);
 
-            ToolStripMenuItem mitemChangeFont = new ToolStripMenuItem("Change &font");
+            ToolStripMenuItem mitemChangeFont = new ToolStripMenuItem("Change &font...");
             mitemChangeFont.Click += new EventHandler(mitemChangeFont_Click);
 
             ToolStripMenuItem mitemLeadingZeroesHours = new ToolStripMenuItem("Display leading zeroes on &hours");
@@ -63,6 +65,16 @@ namespace ZTrayClock
             mitemDisplayAMPM.Checked = Properties.Settings.Default.DisplayAMPM;
             mitemDisplayAMPM.Click += new EventHandler(mitemDisplayAMPM_Click);
 
+            ToolStripMenuItem mitemStartAtLogon = new ToolStripMenuItem("Start at logon");
+            try {
+                RegistryKey run = hkcu.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run");
+                string value = (string)(run.GetValue("ZTrayClock"));
+                mitemStartAtLogon.Checked = value.Equals(Application.ExecutablePath);
+            } catch (Exception) {
+                mitemStartAtLogon.Checked = false;
+            }
+            mitemStartAtLogon.Click += new EventHandler(mitemStartAtLogon_Click);
+
             ToolStripMenuItem mitemExit = new ToolStripMenuItem("E&xit");
             mitemExit.Click += new EventHandler(mitemExit_Click);
             
@@ -71,6 +83,7 @@ namespace ZTrayClock
             contextMenuStrip.Items.AddRange(new ToolStripItem[] { 
                 mitemAdjTimeDate, mitemChangeFont, new ToolStripSeparator(),
                 mitemLeadingZeroesHours, mitemLeadingZeroesMinutes, mitem12HourFormat, mitem24HourFormat, mitemDisplayAMPM, new ToolStripSeparator(),
+                mitemStartAtLogon, new ToolStripSeparator(),
                 mitemExit
             });
             iconHour.ContextMenuStrip = iconMinute.ContextMenuStrip = contextMenuStrip;
@@ -81,6 +94,45 @@ namespace ZTrayClock
 
             SystemEvents.TimeChanged += new EventHandler(SystemEvents_TimeChanged);
             this.ThreadExit += new EventHandler(ZTrayClock_ThreadExit);
+        }
+
+        void mitemStartAtLogon_Click(object sender, EventArgs e) {
+            var mitem = sender as ToolStripMenuItem;
+
+            RegistryKey run;
+            try {
+                run = hkcu.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
+            } catch (Exception ex) {
+                MessageBox.Show("Failed to change start at logon state.  Couldn't open registry key " + @"HKCU\Software\Microsoft\Windows\CurrentVersion\Run" + "\n" +
+                    "Error:" + ex.Message, "ZTrayClock", MessageBoxButtons.OK,MessageBoxIcon.Error);
+                mitem.Checked = false;
+                return;
+            }
+
+            string value = (string)(run.GetValue("ZTrayClock",""));
+            if (value.Equals(Application.ExecutablePath)) {
+                    try {
+                        run.DeleteValue("ZTrayClock");
+                        mitem.Checked = false;
+                        return;
+                    } catch (Exception ex) {
+                        MessageBox.Show("Failed to disable start at login.  Couldn't delete registry value " + @"HKCU\Software\Microsoft\Windows\CurrentVersion\Run\ZTrayClock." + "\n" +
+                            "Error: " + ex.Message, "ZTrayClock", MessageBoxButtons.OK,MessageBoxIcon.Error);
+                        mitem.Checked = true;
+                        return;
+                    }
+                } else {
+                    try {
+                        run.SetValue("ZTrayClock", String.Format("\"{0}\"", Application.ExecutablePath), RegistryValueKind.String);
+                        mitem.Checked = true;
+                        return;
+                    } catch (Exception ex) {
+                        MessageBox.Show("Failed to enable start at login.  Couldn't create registry value " + @"HKCU\Software\Microsoft\Windows\CurrentVersion\Run\ZTrayClock." + "\n" +
+                            "Error: " + ex.Message, "ZTrayClock", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        mitem.Checked = false;
+                        return;
+                    }
+                }
         }
 
         void SystemEvents_TimeChanged(object sender, EventArgs e) {
