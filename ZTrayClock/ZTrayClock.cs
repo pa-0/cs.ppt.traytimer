@@ -69,7 +69,7 @@ namespace ZTrayClock
             try {
                 RegistryKey run = hkcu.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run");
                 string value = (string)(run.GetValue("ZTrayClock"));
-                mitemStartAtLogon.Checked = value.Equals(Application.ExecutablePath);
+                mitemStartAtLogon.Checked = value.Equals(String.Format("\"{0}\"", Application.ExecutablePath));
             } catch (Exception) {
                 mitemStartAtLogon.Checked = false;
             }
@@ -110,29 +110,29 @@ namespace ZTrayClock
             }
 
             string value = (string)(run.GetValue("ZTrayClock",""));
-            if (value.Equals(Application.ExecutablePath)) {
-                    try {
-                        run.DeleteValue("ZTrayClock");
-                        mitem.Checked = false;
-                        return;
-                    } catch (Exception ex) {
-                        MessageBox.Show("Failed to disable start at login.  Couldn't delete registry value " + @"HKCU\Software\Microsoft\Windows\CurrentVersion\Run\ZTrayClock." + "\n" +
-                            "Error: " + ex.Message, "ZTrayClock", MessageBoxButtons.OK,MessageBoxIcon.Error);
-                        mitem.Checked = true;
-                        return;
-                    }
-                } else {
-                    try {
-                        run.SetValue("ZTrayClock", String.Format("\"{0}\"", Application.ExecutablePath), RegistryValueKind.String);
-                        mitem.Checked = true;
-                        return;
-                    } catch (Exception ex) {
-                        MessageBox.Show("Failed to enable start at login.  Couldn't create registry value " + @"HKCU\Software\Microsoft\Windows\CurrentVersion\Run\ZTrayClock." + "\n" +
-                            "Error: " + ex.Message, "ZTrayClock", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        mitem.Checked = false;
-                        return;
-                    }
+            if (value.Equals(String.Format("\"{0}\"", Application.ExecutablePath))) {
+                try {
+                    run.DeleteValue("ZTrayClock");
+                    mitem.Checked = false;
+                    return;
+                } catch (Exception ex) {
+                    MessageBox.Show("Failed to disable start at login.  Couldn't delete registry value " + @"HKCU\Software\Microsoft\Windows\CurrentVersion\Run\ZTrayClock." + "\n" +
+                        "Error: " + ex.Message, "ZTrayClock", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    mitem.Checked = true;
+                    return;
                 }
+            } else {
+                try {
+                    run.SetValue("ZTrayClock", String.Format("\"{0}\"", Application.ExecutablePath), RegistryValueKind.String);
+                    mitem.Checked = true;
+                    return;
+                } catch (Exception ex) {
+                    MessageBox.Show("Failed to enable start at login.  Couldn't create registry value " + @"HKCU\Software\Microsoft\Windows\CurrentVersion\Run\ZTrayClock." + "\n" +
+                        "Error: " + ex.Message, "ZTrayClock", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    mitem.Checked = false;
+                    return;
+                }
+            }
         }
 
         void SystemEvents_TimeChanged(object sender, EventArgs e) {
