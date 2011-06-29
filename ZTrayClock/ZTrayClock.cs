@@ -37,6 +37,9 @@ namespace ZTrayClock
             iconMinute.DoubleClick += new EventHandler(iconHour_DoubleClick);
 
             // set up the context menu items
+            ToolStripMenuItem mitemZTrayClock = new ToolStripMenuItem("ZTrayClock (Built from Git commit " + Properties.Resources.revision.TrimEnd() + ")");
+            mitemZTrayClock.Enabled = false;
+
             ToolStripMenuItem mitemAdjTimeDate = new ToolStripMenuItem("&Adjust time/date");
             mitemAdjTimeDate.Font = new Font(mitemAdjTimeDate.Font, FontStyle.Bold);
             mitemAdjTimeDate.Click += new EventHandler(mitemAdjTimeDate_Click);
@@ -81,6 +84,7 @@ namespace ZTrayClock
             // set up the context menu
             contextMenuStrip = new ContextMenuStrip();
             contextMenuStrip.Items.AddRange(new ToolStripItem[] { 
+                mitemZTrayClock, new ToolStripSeparator(),
                 mitemAdjTimeDate, mitemChangeFont, new ToolStripSeparator(),
                 mitemLeadingZeroesHours, mitemLeadingZeroesMinutes, mitem12HourFormat, mitem24HourFormat, mitemDisplayAMPM, new ToolStripSeparator(),
                 mitemStartAtLogon, new ToolStripSeparator(),
