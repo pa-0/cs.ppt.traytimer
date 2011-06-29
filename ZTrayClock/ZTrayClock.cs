@@ -252,6 +252,7 @@ namespace ZTrayClock
 
             Bitmap b = new Bitmap(iconSize, iconSize, PixelFormat.Format32bppArgb);
             Graphics gb = Graphics.FromImage(b);
+            Icon i;
 
             gb.Clear(Color.Transparent);
             gb.SmoothingMode = SmoothingMode.AntiAlias;
@@ -259,8 +260,11 @@ namespace ZTrayClock
             SizeF hourregsize  = gb.MeasureString(hour, font);
             gb.DrawString(hour, font, new SolidBrush(Color.Black), (iconSize-hourregsize.Width)+2, -2);
             gb.DrawString(hour, font, new SolidBrush(Color.White), (iconSize-hourregsize.Width)+1, -3);
+            i = Icon.FromHandle(b.GetHicon());
+            gb.Dispose();
+            b.Dispose();
 
-            return Icon.FromHandle(b.GetHicon());
+            return i;
         }
 
         public Icon DrawMinute() {
@@ -268,6 +272,7 @@ namespace ZTrayClock
 
             Bitmap b = new Bitmap(iconSize, iconSize, PixelFormat.Format32bppArgb);
             Graphics gb = Graphics.FromImage(b);
+            Icon i;
 
             gb.Clear(Color.Transparent);
             gb.SmoothingMode = SmoothingMode.HighQuality;
@@ -282,7 +287,11 @@ namespace ZTrayClock
                 gb.DrawString(String.Format("{0:tt}", DateTime.Now), ampmFont, new SolidBrush(Color.White), (iconSize - ampmsize.Width), (iconSize - ampmsize.Height));
             }
 
-            return Icon.FromHandle(b.GetHicon());
+            i = Icon.FromHandle(b.GetHicon());
+            gb.Dispose();
+            b.Dispose();
+
+            return i;
         }
     }
 }
