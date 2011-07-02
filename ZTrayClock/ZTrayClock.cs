@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Drawing.Text;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
@@ -264,7 +265,7 @@ namespace ZTrayClock
             Icon i;
 
             gb.Clear(Color.Transparent);
-            gb.SmoothingMode = SmoothingMode.AntiAlias;
+            gb.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
             SizeF hourregsize  = gb.MeasureString(hour, font);
             gb.DrawString(hour, font, new SolidBrush(Color.Black), (iconSize-hourregsize.Width)+2, -2);
@@ -284,7 +285,7 @@ namespace ZTrayClock
             Icon i;
 
             gb.Clear(Color.Transparent);
-            gb.SmoothingMode = SmoothingMode.HighQuality;
+            gb.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
             gb.DrawString(minute, font, new SolidBrush(Color.Black), -1, -2);
             gb.DrawString(minute, font, new SolidBrush(Color.White), -2, -3);
