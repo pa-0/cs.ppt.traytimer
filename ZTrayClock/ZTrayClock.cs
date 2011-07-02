@@ -97,7 +97,12 @@ namespace ZTrayClock
             timer.Enabled = true;
 
             SystemEvents.TimeChanged += new EventHandler(SystemEvents_TimeChanged);
+            SystemEvents.PowerModeChanged += new PowerModeChangedEventHandler(SystemEvents_PowerModeChanged);
             this.ThreadExit += new EventHandler(ZTrayClock_ThreadExit);
+        }
+
+        void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e) {
+            if (e.Mode == PowerModes.Resume) timer_Tick(sender, e as EventArgs);
         }
 
         void mitemStartAtLogon_Click(object sender, EventArgs e) {
