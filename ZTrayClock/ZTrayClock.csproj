@@ -87,7 +87,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>"C:\Program Files (x86)\Git\bin\git.exe" --git-dir="$(SolutionDir)\.git" rev-parse --short HEAD &gt; "$(SolutionDir)\revision"</PreBuildEvent>
+    <PreBuildEvent>"C:\Program Files (x86)\Git\bin\git.exe" --git-dir="$(SolutionDir)\.git" rev-parse --short HEAD &gt; "$(ProjectDir)\Resources\revision"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
