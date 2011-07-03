@@ -265,7 +265,7 @@ namespace ZTrayClock
             Icon i;
 
             gb.Clear(Color.Transparent);
-            gb.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+            gb.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
 
             SizeF hourregsize  = gb.MeasureString(hour, font);
             gb.DrawString(hour, font, new SolidBrush(Color.Black), (iconSize-hourregsize.Width)+2, -2);
@@ -285,7 +285,7 @@ namespace ZTrayClock
             Icon i;
 
             gb.Clear(Color.Transparent);
-            gb.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+            gb.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
 
             gb.DrawString(minute, font, new SolidBrush(Color.Black), -1, -2);
             gb.DrawString(minute, font, new SolidBrush(Color.White), -2, -3);
