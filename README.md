@@ -16,3 +16,10 @@ ZTrayClock looks [like this](http://i.imgur.com/EOGuc.jpg).
 The Windows clock looks [like this](http://i.imgur.com/QHTaL.jpg).
 
 The difference isn't that drastic, but on a 1366x768 screen (such as my laptop's), every little bit helps.
+
+## License
+
+ZTrayClock is released into the public domain.
+
+To the extent possible under law, I have waived all copyright and related or neighboring rights to
+ZTrayClock. This work is published from the United States of America.
